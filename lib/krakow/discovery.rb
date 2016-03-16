@@ -32,7 +32,9 @@ module Krakow
         uri.query = "topic=#{topic}&ts=#{Time.now.to_i}"
         begin
           debug "Requesting lookup for topic #{topic} - #{uri}"
-          content = HTTP.with(:accept => 'application/octet-stream').get(uri.to_s)
+          content = HTTP.timeout(:global, :write => 2, :connect => 2, :read => 2)
+                        .headers(:accept => 'application/octet-stream')
+                        .get(uri.to_s)
           unless(content.respond_to?(:to_hash))
             data = MultiJson.load(content.to_s)
           else
